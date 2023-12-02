@@ -9,10 +9,10 @@ def solver(input: list[str]):
 def main():
 
     # Load input from stdin
-    input = sys.stdin.readlines()
+    input_lines = sys.stdin.readlines()
 
     # Solve problem
-    output = solver(input)
+    output = solver(input_lines)
 
     # Write to stdout
     print(output, file=sys.stdout)
