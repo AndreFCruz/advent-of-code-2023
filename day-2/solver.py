@@ -1,6 +1,10 @@
 import re
 import sys
+import operator
+from functools import reduce
 
+
+COLORS = ["red", "green", "blue"]
 
 MAX_DIE_PART_1 = {
     "red": 12,
@@ -28,7 +32,7 @@ def parse_input(input_lines: list[str]) -> dict[int, list[dict[str, int]]]:
     }
 
 
-def solve_part_one(games: dict[int, list[dict[str, int]]], max_die: dict[str, int]):
+def solve_part_one(games: dict[int, list[dict[str, int]]], max_die: dict[str, int]) -> int:
     """Solves part one.
 
     Parameters
@@ -42,6 +46,11 @@ def solve_part_one(games: dict[int, list[dict[str, int]]], max_die: dict[str, in
     max_die : dict[str, int]
         The maximum number of die allowed per color.
         Will sum up the IDs of the games that fulfill this constraint.
+
+    Returns
+    -------
+    sum : int
+        The sum over all game IDs that would be possible using only `max_die`.
     """
     def check_game_set(game_set: dict[str, int]) -> bool:
         """Checks whether this `game_set` would be possible with only `max_die`"""
@@ -57,6 +66,36 @@ def solve_part_one(games: dict[int, list[dict[str, int]]], max_die: dict[str, in
     )
 
 
+def solve_part_two(games: dict[int, list[dict[str, int]]]) -> int:
+    """Solve part two.
+
+    Parameters
+    ----------
+    games : dict[int, list[dict[str, int]]]
+        The series of games played.
+
+    Returns
+    -------
+    sum : int
+        The sum over the power of each game's min cube set.
+    """
+
+    def get_min_die_for_game(game_sets: list[dict[str, int]]) -> dict:
+        """Get the minimum set of die that would be required to run the `game_sets`."""
+        return {
+            color: max(gset.get(color, 0) for gset in game_sets)
+            for color in COLORS
+        }
+
+    return sum(
+        reduce(
+            operator.mul,
+            get_min_die_for_game(game_).values()
+        )
+        for game_ in games.values()
+    )
+
+
 if __name__ == "__main__":
 
     # Read input
@@ -65,14 +104,15 @@ if __name__ == "__main__":
 
     # # > Or load from file
     # from pathlib import Path
-    # input_path = Path("day-2/example1.txt")
+    # input_path = Path(__file__).parent / "example1.txt"
     # input_lines = input_path.read_text().split("\n")
 
     # Parse input
     games = parse_input(input_lines)
 
     # Solve problem
-    output = solve_part_one(games, max_die=MAX_DIE_PART_1)
+    # output = solve_part_one(games, max_die=MAX_DIE_PART_1)
+    output = solve_part_two(games)
 
     # Write to stdout
     print(output, file=sys.stdout)
