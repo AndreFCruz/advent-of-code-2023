@@ -1,4 +1,9 @@
+import re
 import sys
+import math
+import operator
+from dataclasses import dataclass
+from functools import reduce
 
 
 def parse_input(input_lines: list[str]):

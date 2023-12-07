@@ -18,7 +18,7 @@ class BoatRaces:
         return zip(self.times, self.distances)
 
 
-def parse_input(input_lines: list[str]) -> list[tuple[set[int], set[int]]]:
+def parse_input(input_lines: list[str]) -> BoatRaces:
     numbers_regex = re.compile(r"(?P<number>\d+)")
 
     times = map(int, numbers_regex.findall(input_lines[0]))
