@@ -21,6 +21,7 @@ def solve_part_one(problem_data) -> int:
 
 
 def extrapolate_value_from_history(history: list[int]) -> int:
+    """Extrapolate FUTURE value from history (PART ONE)."""
 
     solution_lines = [history]
 
@@ -37,8 +38,29 @@ def extrapolate_value_from_history(history: list[int]) -> int:
         extrapolated_val = solution_lines[idx][-1] + solution_lines[idx + 1][-1]
         solution_lines[idx].append(extrapolated_val)
     
-    print(history[:5], solution_lines[0][-1])
     return solution_lines[0][-1]
+
+
+
+def extrapolate_past_value_from_history(history: list[int]) -> int:
+    """Extrapolate PAST value from history (PART TWO)."""
+
+    solution_lines = [history]
+
+    # Construct pyramid lines -- same as part one
+    while True:
+        next_line = differences_between_adjacent_numbers(solution_lines[-1])
+        solution_lines.append(next_line)
+
+        # Stop if the next line is all zeros
+        if set(next_line) == {0}: break
+
+    # Reconstruct all values extrapolated to the PAST
+    for idx in range(len(solution_lines) - 2, -1, -1):
+        extrapolated_val = solution_lines[idx][0] - solution_lines[idx + 1][0]
+        solution_lines[idx].insert(0, extrapolated_val)
+    
+    return solution_lines[0][0]
 
 
 def differences_between_adjacent_numbers(numbers: list[int]) -> list[int]:
@@ -48,10 +70,14 @@ def differences_between_adjacent_numbers(numbers: list[int]) -> list[int]:
     ]
 
 
+
 def solve_part_two(problem_data) -> int:
     """Solve part two.
     """
-    pass
+    return sum(
+        extrapolate_past_value_from_history(history)
+        for history in problem_data
+    )
 
 
 def main():
@@ -71,8 +97,8 @@ def main():
     problem_data = parse_input(input_lines)
 
     # Solve problem
-    output = solve_part_one(problem_data)
-    # output = solve_part_two(problem_data)
+    # output = solve_part_one(problem_data)
+    output = solve_part_two(problem_data)
 
     # Write to stdout
     print(output, file=sys.stdout)
