@@ -1,8 +1,6 @@
 import re
 import sys
-import math
-import operator
-from dataclasses import dataclass
+from typing import Callable
 from functools import reduce
 
 
@@ -21,16 +19,18 @@ def parse_input(input_lines: list[str]) -> tuple[str, dict[str, tuple[str, str]]
     return left_right_instructions, graph
 
 
-def solve_part_one(problem_data) -> int:
+def solve_part_one(problem_data, src_node, dst_node: str | Callable) -> int:
     """Solve part one.
     """
     instructions, graph = problem_data
 
-    DST_NODE = "ZZZ"
-    curr_node = "AAA"
+    curr_node = src_node
     num_steps = 0
     curr_instr_idx = 0
-    while curr_node != DST_NODE:
+
+    reached_dst_node = lambda node: node == dst_node if isinstance(dst_node, str) else dst_node(node)
+
+    while not reached_dst_node(curr_node):
         instr = instructions[curr_instr_idx]
         curr_node = graph[curr_node][0 if instr == "L" else 1]
         num_steps += 1
@@ -49,19 +49,22 @@ def solve_part_two(problem_data) -> int:
     
     instructions, graph = problem_data
 
-    curr_nodes = [node for node in graph if is_src_node(node)]
-    curr_instr_idx = 0
-    num_steps = 0
+    # Get number of steps to reach a node ending in Z for each node ending in A
+    num_steps_to_dst_node = {
+        node: solve_part_one(problem_data, src_node=node, dst_node=is_dst_node)
+        for node in graph.keys() if is_src_node(node)
+    }
 
-    while not all(is_dst_node(node) for node in curr_nodes):
-        for idx, node in enumerate(curr_nodes):
-            instr = instructions[curr_instr_idx]
-            curr_nodes[idx] = graph[node][0 if instr == "L" else 1]
+    # Get least common multiple between all step counts
+    def gcd(a, b):
+        while b:
+            a, b = b, a % b
+        return a
 
-        num_steps += 1
-        curr_instr_idx = (curr_instr_idx + 1) % len(instructions)
+    def lcm(a, b):
+        return a * b // gcd(a, b)
 
-    return num_steps
+    return reduce(lcm, num_steps_to_dst_node.values())
 
 
 def main():
@@ -81,7 +84,7 @@ def main():
     problem_data = parse_input(input_lines)
 
     # Solve problem
-    # output = solve_part_one(problem_data)
+    # output = solve_part_one(problem_data, src_node="AAA", dst_node="ZZZ")
     output = solve_part_two(problem_data)
 
     # Write to stdout
