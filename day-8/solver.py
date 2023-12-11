@@ -26,11 +26,11 @@ def solve_part_one(problem_data) -> int:
     """
     instructions, graph = problem_data
 
-    num_steps = 0
+    DST_NODE = "ZZZ"
     curr_node = "AAA"
-    dst_node = "ZZZ"
+    num_steps = 0
     curr_instr_idx = 0
-    while curr_node != dst_node:
+    while curr_node != DST_NODE:
         instr = instructions[curr_instr_idx]
         curr_node = graph[curr_node][0 if instr == "L" else 1]
         num_steps += 1
@@ -42,7 +42,26 @@ def solve_part_one(problem_data) -> int:
 def solve_part_two(problem_data) -> int:
     """Solve part two.
     """
-    pass
+    def is_src_node(node: str):
+        return node[-1] == "A"
+    def is_dst_node(node: str):
+        return node[-1] == "Z"
+    
+    instructions, graph = problem_data
+
+    curr_nodes = [node for node in graph if is_src_node(node)]
+    curr_instr_idx = 0
+    num_steps = 0
+
+    while not all(is_dst_node(node) for node in curr_nodes):
+        for idx, node in enumerate(curr_nodes):
+            instr = instructions[curr_instr_idx]
+            curr_nodes[idx] = graph[node][0 if instr == "L" else 1]
+
+        num_steps += 1
+        curr_instr_idx = (curr_instr_idx + 1) % len(instructions)
+
+    return num_steps
 
 
 def main():
@@ -62,8 +81,8 @@ def main():
     problem_data = parse_input(input_lines)
 
     # Solve problem
-    output = solve_part_one(problem_data)
-    # output = solve_part_two(problem_data)
+    # output = solve_part_one(problem_data)
+    output = solve_part_two(problem_data)
 
     # Write to stdout
     print(output, file=sys.stdout)
